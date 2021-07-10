@@ -8,6 +8,8 @@ class CreateChatRoomService {
     const room = await ChatRoom.create({
       id_users,
     });
+
+    return room;
   }
 }
 
