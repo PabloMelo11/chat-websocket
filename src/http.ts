@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 const app = express();
 const server = createServer(app);
 
-mongoose.connect('mongodb://localhost:27017/rocketsocket', {
+mongoose.connect('mongodb://localhost/rocketsocket', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -17,9 +17,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 const io = new Server(server);
 
-io.on('connection', (socket) => {
-  console.log('socket', socket);
-});
+io.on('connection', (socket) => {});
 
 app.get('/', (request, response) => {
   return response.json({ ok: true });
