@@ -4,9 +4,9 @@ import { ChatRoom } from '../schemas/chatRoom';
 
 @injectable()
 class CreateChatRoomService {
-  async execute(id_users: string[]) {
+  async execute(idUsers: string[]) {
     const room = await ChatRoom.create({
-      id_users,
+      idUsers,
     });
 
     return room;

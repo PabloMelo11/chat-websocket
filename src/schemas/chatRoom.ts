@@ -3,13 +3,13 @@ import mongoose, { Document, Schema } from 'mongoose';
 import { User } from './User';
 
 type ChatRoom = Document & {
-  id_users: User[];
-  id_chat_room: string;
+  idUsers: User[];
+  idChatRoom: string;
 };
 
 const ChatRoomSchema = new Schema({
-  id_users: [{ type: Schema.Types.ObjectId, ref: 'users' }],
-  id_chat_room: { type: String, default: uuid() },
+  idUsers: [{ type: Schema.Types.ObjectId, ref: 'users' }],
+  idChatRoom: { type: String, default: uuid() },
 });
 
 const ChatRoom = mongoose.model<ChatRoom>('chat_room', ChatRoomSchema);

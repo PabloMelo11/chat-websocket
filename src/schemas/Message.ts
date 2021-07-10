@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 type Message = Document & {
   to: string;
   text: string;
-  room_id: string;
+  roomId: string;
   created_at: Date;
 };
 
@@ -13,7 +13,7 @@ const MessageSchema = new Schema({
     ref: 'users',
   },
   text: String,
-  room_id: {
+  roomId: {
     type: String,
     ref: 'chat_room',
   },

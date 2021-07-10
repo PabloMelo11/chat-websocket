@@ -72,4 +72,21 @@ document.getElementById('users_list').addEventListener('click', (event) => {
   });
 });
 
+document
+  .getElementById('user_message')
+  .addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      const message = event.target.value;
+
+      event.target.value = '';
+
+      const data = {
+        message,
+        idChatRoom,
+      };
+
+      socket.emit('message', data);
+    }
+  });
+
 onLoad();

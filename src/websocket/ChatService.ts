@@ -7,12 +7,13 @@ import { GetAllUsersService } from '../services/GetAllUsersService';
 import { CreateChatRoomService } from '../services/CreateChatRoomService';
 import { GetUserBySocketIdService } from '../services/GetUserBySocketIdService';
 import { GetChatRoomByUsersService } from '../services/GetChatRoomByUsersService';
+import { CreateMessageService } from '../services/CreateMessageService';
 
 io.on('connect', (socket) => {
   socket.on('start', async (data) => {
-    const { name, email, avatar } = data;
-
     const createUserService = container.resolve(CreateUserService);
+
+    const { name, email, avatar } = data;
 
     const user = await createUserService.execute({
       name,
@@ -24,7 +25,7 @@ io.on('connect', (socket) => {
     socket.broadcast.emit('new_users', user);
   });
 
-  socket.on('get_users', async (callback) => {
+  socket.on('get_users', async (_, callback) => {
     const getAllUsersService = container.resolve(GetAllUsersService);
 
     const users = await getAllUsersService.execute();
@@ -34,11 +35,9 @@ io.on('connect', (socket) => {
 
   socket.on('start_chat', async (data, callback) => {
     const createChatRoomService = container.resolve(CreateChatRoomService);
-
     const getUserBySocketIdService = container.resolve(
       GetUserBySocketIdService
     );
-
     const getChatRoomByUsersService = container.resolve(
       GetChatRoomByUsersService
     );
@@ -54,6 +53,29 @@ io.on('connect', (socket) => {
       room = await createChatRoomService.execute([data.idUser, userLogged._id]);
     }
 
+    socket.join(room.idChatRoom);
+
     callback({ room });
+  });
+
+  socket.on('message', async (data) => {
+    const createMessageService = container.resolve(CreateMessageService);
+
+    const getUserBySocketIdService = container.resolve(
+      GetUserBySocketIdService
+    );
+
+    const user = await getUserBySocketIdService.execute(socket.id);
+
+    const message = await createMessageService.execute({
+      to: user._id,
+      text: data.message,
+      roomId: data.idChatRoom,
+    });
+
+    io.to(data.idChatRoom).emit('message', {
+      message,
+      user,
+    });
   });
 });

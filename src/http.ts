@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 const app = express();
 const server = createServer(app);
 
-mongoose.connect('mongodb://localhost/rocketsocket', {
+mongoose.connect('mongodb://localhost:27017/rocketsocket', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
