@@ -1,4 +1,4 @@
-const socket = io('http://localhost:3000');
+const socket = io('http://localhost:3333');
 let idChatRoom = '';
 
 function onLoad() {
@@ -43,6 +43,39 @@ function onLoad() {
       addMessage(data);
     }
   });
+
+  socket.on('notification', (data) => {
+    if (data.roomId !== idChatRoom) {
+      const user = document.getElementById(`user_${data.from._id}`);
+
+      user.insertAdjacentHTML(
+        'afterbegin',
+        ` 
+        <div class="notification"></div>
+      `
+      );
+    }
+  });
+}
+
+function addMessage(data) {
+  const divMessageUser = document.getElementById('message_user');
+
+  divMessageUser.innerHTML += ` 
+  <span class="user_name user_name_date">
+      <img
+        class="img_user"
+        src=${data.user.avatar}
+      />
+      <strong> ${data.user.name} &nbsp; </strong>
+      <span>  ${dayjs(data.message.created_at).format(
+        'DD/MM/YYYY HH:mm'
+      )} </span></span
+    >
+    <div class="messages">
+      <span class="chat_message"> ${data.message.text}</span>
+    </div>
+  `;
 }
 
 function addUser(user) {
@@ -62,31 +95,55 @@ function addUser(user) {
   `;
 }
 
-document.getElementById('users_list').addEventListener('click', (event) => {
-  if (event.target && event.target.matches('li.user_name_list')) {
-    const idUser = event.target.getAttribute('idUser');
-  }
+document.getElementById('users_list').addEventListener('click', (e) => {
+  const inputMessage = document.getElementById('user_message');
+  inputMessage.classList.remove('hidden');
 
-  socket.emit('start_chat', { idUser }, (data) => {
-    idChatRoom = data.room.idChatRoom;
-  });
+  document
+    .querySelectorAll('li.user_name_list')
+    .forEach((item) => item.classList.remove('user_in_focus'));
+
+  document.getElementById('message_user').innerHTML = '';
+  if (e.target && e.target.matches('li.user_name_list')) {
+    const idUser = e.target.getAttribute('idUser');
+
+    e.target.classList.add('user_in_focus');
+
+    const notification = document.querySelector(
+      `#user_${idUser} .notification`
+    );
+    if (notification) {
+      notification.remove();
+    }
+
+    socket.emit('start_chat', { idUser }, (response) => {
+      idChatRoom = response.room.idChatRoom;
+
+      response.messages.forEach((message) => {
+        const data = {
+          message,
+          user: message.to,
+        };
+
+        addMessage(data);
+      });
+    });
+  }
 });
 
-document
-  .getElementById('user_message')
-  .addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-      const message = event.target.value;
+document.getElementById('user_message').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const message = e.target.value;
 
-      event.target.value = '';
+    e.target.value = '';
 
-      const data = {
-        message,
-        idChatRoom,
-      };
+    const data = {
+      message,
+      idChatRoom,
+    };
 
-      socket.emit('message', data);
-    }
-  });
+    socket.emit('message', data);
+  }
+});
 
 onLoad();

@@ -8,9 +8,11 @@ import mongoose from 'mongoose';
 const app = express();
 const server = createServer(app);
 
-mongoose.connect('mongodb://localhost:27017/rocketsocket', {
+mongoose.connect(`mongodb://127.0.0.1:27017/websocket`, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
 });
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
